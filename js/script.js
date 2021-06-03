@@ -20,11 +20,11 @@ function titleClickHandler(event){
   const activeArticles = document.querySelectorAll('.posts article.active'); 
 
   for(let activeArticle of activeArticles){
-      activeArticle.classList.remove('active');
+    activeArticle.classList.remove('active');
   }
 
   /* get 'href' attribute from the clicked link */
-  const articleSelector = clickedElement.getAttribute("href");
+  const articleSelector = clickedElement.getAttribute('href');
   console.log(articleSelector);
 
   /* find the correct article using the selector (value of 'href' attribute) */
@@ -50,7 +50,7 @@ function generateTitleLinks(){
   const articles = document.querySelectorAll(optArticleSelector);
   for(let article of articles){
     /* get the article id */
-    const articleId = article.getAttribute("id");
+    const articleId = article.getAttribute('id');
 
     /* find the title element */
     /* get the title from the title element */
