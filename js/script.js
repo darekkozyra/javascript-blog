@@ -35,14 +35,15 @@ function titleClickHandler(event){
   targetArticle.classList.add('active');
 }
 
-const optArticleSelector = '.post',
+  const optArticleSelector = '.post',
   optTitleSelector = '.post-title',
   optTitleListSelector = '.titles',
   optArticleTagsSelector = '.post-tags .list',
   optArticleAuthorSelector = '.post-author',
   optTagsListSelector = '.tags.list',
   optCloudClassCount = 5,
-  optCloudClassPrefix = 'tag-size-';
+  optCloudClassPrefix = 'tag-size-',
+  optAuthorsListSelector = '.list.authors';
   
 function generateTitleLinks(customSelector = ''){
   /* remove contents of titleList */
@@ -89,7 +90,7 @@ function calculateTagsParams(tags){
     if(tags[tag] > params.max){
       params.max = tags[tag];
     }
-    if(tags[tag] <= params.min){
+    if(tags[tag] < params.min){
       params.min = tags[tag];
     }
   }
@@ -97,10 +98,15 @@ function calculateTagsParams(tags){
 }
 
 function calculateTagClass(count, params){
-
+  const normalizedCount = count - params.min;
+  const normalizedMax = params.max - params.min;
+  const percentage = normalizedCount / normalizedMax;
+  const classNumber = Math.floor( percentage * (optCloudClassCount - 1) + 1 );
+  return optCloudClassPrefix+classNumber;
 }
+
 function generateTags(){
-  /* [NEW] create a new variable allTags with an empty array */
+  /* [NEW] create a new variable allTags with an empty object */
   let allTags = {};
   /* find all articles */
   const articles = document.querySelectorAll('article');
@@ -117,7 +123,7 @@ function generateTags(){
     /* START LOOP: for each tag */
     for(let tag of articleTagsArray){
       /* generate HTML of the link */
-      const linkHTML = '<li><a href="#tag-'+ tag +'">'+tag+'</a></li>';
+      const linkHTML = '<li><a href="#tag-'+ tag +'">'+ tag +'</a></li>';
       console.log(linkHTML);
       /* add generated code to html variable */
       /* [NEW] check if this link is NOT already in allTags */
@@ -144,8 +150,11 @@ function generateTags(){
 
   /*[NEW] START LOOP: for each tag in allTags:*/
   for(let tag in allTags){
+    const tagLinkHTML = '<li><a class=' + calculateTagClass(allTags[tag], tagsParams) +" "+ 'href="#tag-'+ tag +'">'+" "+ tag +'</a></li>';
+    // " (" + allTags[tag] + ") " + '</li>';
+    console.log('tagLinkHTML', tagLinkHTML);
     /*[NEW] generate code of link and add it to allTagsHTML*/
-    allTagsHTML += tag + ' (' + allTags[tag] +') ';
+    allTagsHTML += tagLinkHTML;
   }
   /*[NEW] add html from allTagsHTML to tagList*/
   tagList.innerHTML = allTagsHTML;
@@ -185,7 +194,7 @@ function tagClickHandler(event){
 
 function addClickListenersToTags(){
   /* find all links to tags */
-  const tagLinks = document.querySelectorAll('.list-horizontal a');
+  const tagLinks = document.querySelectorAll('.list-horizontal a, .list.tags a');
   /* START LOOP: for each link */
   for(let tagLink of tagLinks){
     /* add tagClickHandler as event listener for that link */
@@ -197,6 +206,7 @@ function addClickListenersToTags(){
 addClickListenersToTags();
 
 function generateAuthors(){
+  let allAuthors = {};
   const articles = document.querySelectorAll('article');
   for(let article of articles){
     const articleAuthors = article.querySelector(optArticleAuthorSelector);
@@ -204,9 +214,22 @@ function generateAuthors(){
     const author = article.getAttribute('data-author');
     console.log(author);
     const linkHTML = '<a href="' + author + '">'+ author +'</a>';
+    if(!allAuthors.hasOwnProperty(author)){    
+      allAuthors[author] = 1;
+    }else{
+      allAuthors[author]++;
+    }
     html = html + linkHTML;
     articleAuthors.innerHTML = html;
   }
+  const authorList = document.querySelector('.authors');
+  let allAuthorsHTML='';
+  for (let author in allAuthors){
+    const authorLinkHTML = '<li><a href="' + author + '">'+ author +"(" + allAuthors[author] + ")" + '</a></li>';
+    console.log('authorLinkHTML', authorLinkHTML);
+    allAuthorsHTML += authorLinkHTML;
+  }
+  authorList.innerHTML = allAuthorsHTML;
 }
 generateAuthors();
 
@@ -222,7 +245,7 @@ function authorClickHandler(event){
 }
 
 function addClickListenersToAuthor(){
-  const authorLinks = document.querySelectorAll('.post-author a');
+  const authorLinks = document.querySelectorAll('.post-author a, .list.authors a');
   console.log(authorLinks)
   for(let authorLink of authorLinks){
     authorLink.addEventListener('click', authorClickHandler);
